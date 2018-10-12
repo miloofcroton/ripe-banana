@@ -65,5 +65,11 @@ describe('end to end reviewer testing', () => {
                 });
             });
     });
+
+    it('gets a reviewer by id', () => {
+        return request(app)
+            .get(`/reviewer/${createdReviewers[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ _id: createdReviewers[0]._id, name: createdReviewers[0].name, company: createdReviewers[0].company }));
+    });
     
 });
