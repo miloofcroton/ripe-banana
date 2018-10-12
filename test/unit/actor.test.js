@@ -18,7 +18,7 @@ describe('Actor model', () => {
         expect(jsonActor).toEqual({ ...data, _id: expect.any(Object) });
     });
 
-    it('requires an event type', () => {
+    it('requires a name', () => {
 
         const actor = new Actor({
             dob: chance.birthday(),

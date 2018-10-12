@@ -21,7 +21,7 @@ describe('studio model', () => {
         expect(jsonStudio).toEqual({ ...data, _id: expect.any(Object) });
     });
 
-    it('requires an event type', () => {
+    it('requires a name', () => {
 
         const studio = new Studio({
             address: {
