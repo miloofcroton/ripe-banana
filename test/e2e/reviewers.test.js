@@ -71,5 +71,21 @@ describe('end to end reviewer testing', () => {
             .get(`/reviewer/${createdReviewers[0]._id}`)
             .then(({ body }) => expect(body).toEqual({ _id: createdReviewers[0]._id, name: createdReviewers[0].name, company: createdReviewers[0].company }));
     });
+
+    it('updates a reviewer', () => {
+
+        const newReviewer = {
+            name: chance.name(),
+            company: chance.company()
+        };
+
+        return request(app)
+            .put(`/reviewer/${createdReviewers[0]._id}`)
+            .send(newReviewer)
+            .then(({ body }) => expect(body).toEqual({ _id: expect.any(String), name: newReviewer.name, company: newReviewer.company }));
+
+
+
+    });
     
 });
