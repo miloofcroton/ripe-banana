@@ -4,7 +4,7 @@ const app = require('../../lib/app');
 const Chance = require('chance');
 const chance = new Chance();
 
-describe('end to end resource testing', () => {
+describe('end to end studo testing', () => {
 
     let studios = [
         {
