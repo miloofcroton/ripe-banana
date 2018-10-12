@@ -47,7 +47,7 @@ describe('end to end actor testing', () => {
             .get('/actors')
             .then(retrievedActors => {
                 createdActors.forEach(createdActor => {
-                    expect(retrievedActors.body).toContainEqual(createdActor);
+                    expect(retrievedActors.body).toContainEqual({ _id: createdActor._id, name: createdActor.name });
                 });
             });
     });
