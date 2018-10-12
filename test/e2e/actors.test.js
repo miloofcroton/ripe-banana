@@ -42,6 +42,21 @@ describe('end to end actor testing', () => {
             .then(actorRes => createdActors = actorRes);
     });
 
+    it('gets all actors', () => {
+        return request(app)
+            .get('/actors')
+            .then(retrievedActors => {
+                createdActors.forEach(createdActor => {
+                    expect(retrievedActors.body).toContainEqual(createdActor);
+                });
+            });
+    });
+
+    it('gets an actor by id', () => {
+        return request(app)
+            .get(`/actors/${createdActors[0]._id}`)
+            .then(({ body }) => expect(body).toEqual(createdActors[0]));
+    });
 
     it('this creates an actor', () => {
         const actor = {
@@ -54,7 +69,7 @@ describe('end to end actor testing', () => {
             .send(actor)
             .then(({ body }) => {
                 expect(body).toEqual({
-                    ...actor,  
+                    ...actor,
                     dob: actor.dob.toISOString(),
                     _id: expect.any(String),
                     __v: expect.any(Number)
@@ -62,16 +77,26 @@ describe('end to end actor testing', () => {
             });
     });
 
-    it('gets all actors', () => {
+    it('updates an actor', () => {
+
+        const newActor = {
+            name: chance.name(),
+            dob: chance.birthday(),
+            pob: chance.city()
+        };
+
         return request(app)
-            .get('/actors')
-            .then(retrievedActors => {
-                createdActors.forEach(createdActor => {
-                    expect(retrievedActors.body).toContainEqual(createdActor);
-                });
-            });
+            .put(`/actors/${createdActors[0]._id}`)
+            .send(newActor)
+            .then(({ body }) => expect(body).toEqual({ _id: expect.any(String), name: newActor.name }));
     });
 
-    
+    it('deletes an actor', () => {
+        return request(app)
+            .delete(`/actors/${createdActors[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ removed: true }));
+    });
+
+
 
 });
