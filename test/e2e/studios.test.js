@@ -77,7 +77,7 @@ describe('end to end studo testing', () => {
             .get('/studios')
             .then(retrievedStudios => {
                 createdStudios.forEach(createdStudio => {
-                    expect(retrievedStudios.body).toContainEqual(createdStudio);
+                    expect(retrievedStudios.body).toContainEqual({ _id: createdStudio._id, name: createdStudio.name });
                 });
             });
     });
