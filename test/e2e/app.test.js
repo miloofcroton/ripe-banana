@@ -73,7 +73,6 @@ describe('end to end resource testing', () => {
     });
 
     it('gets all studios', () => {
-
         return request(app)
             .get('/studios')
             .then(retrievedStudios => {
@@ -81,9 +80,18 @@ describe('end to end resource testing', () => {
                     expect(retrievedStudios.body).toContainEqual(createdStudio);
                 });
             });
+    });
 
+    it('gets a studio by id', () => {
+        return request(app)
+            .get(`/studios/${createdStudios[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ ...createdStudios[0] }));
+    });
 
-
+    it('deletes a studio by id', () => {
+        return request(app)
+            .delete(`/studios/${createdStudios[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ removed: true }));
     });
 
 
