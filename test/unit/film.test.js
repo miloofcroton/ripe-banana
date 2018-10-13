@@ -107,6 +107,40 @@ describe('Film model', () => {
         expect(errors.studio.properties.message).toEqual('Path `studio` is required.');
     });
 
+    it('requires a released value', () => {
+        
+        const studio = new Studio(
+            {
+                name: chance.name(),
+                address: {
+                    city: chance.city(),
+                    state: chance.state(),
+                    country: chance.country({ full: true })
+                }
+            });
+
+        const actor = new Actor(
+            {
+                name: chance.name(),
+                dob: chance.birthday(),
+                pob: chance.city()
+            });
+
+        const data = {
+            title: chance.word(),
+            studio: studio._id,
+            cast: [{
+                role: chance.name(),
+                actor: actor._id
+            }]
+        };
+
+        const film = new Film(data);
+
+        const errors = getErrors(film.validateSync(), 1);
+        expect(errors.released.properties.message).toEqual('Path `released` is required.');
+    });
+
     it('requires a released value in the correct range', () => {
         
         const studio = new Studio(

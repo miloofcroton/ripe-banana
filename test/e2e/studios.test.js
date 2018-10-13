@@ -43,12 +43,12 @@ describe('end to end studo testing', () => {
     };
 
     beforeEach(() => {
-        return dropCollection('studios');
-    });
-
-    beforeEach(() => {
         return Promise.all(studios.map(studioMaker))
             .then(studioRes => createdStudios = studioRes);
+    });
+
+    afterEach(() => {
+        return dropCollection('studios');
     });
 
     it('this creates a studio', () => {
