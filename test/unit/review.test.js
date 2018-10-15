@@ -2,6 +2,8 @@ const { getErrors } = require('../util/helpers');
 const Review = require('../../lib/models/Review');
 const Reviewer = require('../../lib/models/Reviewer');
 const Film = require('../../lib/models/Film');
+const Actor = require('../../lib/models/Actor');
+const Studio = require('../../lib/models/Studio');
 const Chance = require('chance');
 const chance = new Chance();
 
@@ -54,8 +56,8 @@ describe('Review model', () => {
         expect(jsonReview).toEqual({ 
             ...data, 
             _id: expect.any(Object),
-            createdAt: expect.any(String),
-            updatedAt: expect.any(String)
+            createdAt: expect.any(Date),
+            updatedAt: expect.any(Date)
         });
     });
 
