@@ -135,7 +135,6 @@ describe('end to end film testing', () => {
         return request(app)
             .get('/films')
             .then(retrievedFilms => {
-                console.log(retrievedFilms.body);
                 createdFilms.forEach(() => {
                     expect(retrievedFilms.body).toContainEqual({ 
                         title: createdFilms[0].title,
@@ -147,6 +146,33 @@ describe('end to end film testing', () => {
                 });
             });
     });
+
+    it('gets a film by id', () => {
+        return request(app)
+            .get(`/films/${createdFilms[0]._id}`)
+            .then(({ body }) => {
+                console.log(body);
+
+                expect(body).toEqual({
+                    _id: createdFilms[0]._id,
+                    title: createdFilms[0].title,
+                    released: createdFilms[0].released,
+                    studio: { _id: createdFilms[0].studio, name: createdStudios[0].name },
+                    cast: [{
+                        _id: createdFilms[0].cast[0]._id,
+                        role: createdFilms[0].cast[0].role,
+                        actor: {
+                            _id: createdActors[0]._id,
+                            name: createdActors[0].name
+                        }
+                    }],
+                });
+
+
+            });
+    });
+
+
 
 
 
