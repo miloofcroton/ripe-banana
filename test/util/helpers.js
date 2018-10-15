@@ -5,6 +5,10 @@ const getErrors = (validation, numberExpected) => {
     return errors;
 };
 
+
+
+//add helper functions to refactor e2e tests
+
 module.exports = {
     getErrors
 };

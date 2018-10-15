@@ -152,6 +152,4 @@ describe('Review model', () => {
     });
 
 
-
-
 });
