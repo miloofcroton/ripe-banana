@@ -11,7 +11,16 @@ describe('end to end review testing', () => {
     let createdActors;
     let createdStudios;
     let createdFilms;
+    let createdReviews;
 
+    let reviews = [{
+        rating: chance.natural({ min: 1, max: 5 }),
+        review: chance.string({ length: 50 })
+    }, {
+        rating: chance.natural({ min: 1, max: 5 }),
+        review: chance.string({ length: 50 })
+    }];
+    
     let reviewers = [
         {
             name: chance.name(),
@@ -41,7 +50,10 @@ describe('end to end review testing', () => {
 
     beforeEach(() => {
         return Promise.all(reviewers.map(tumblr))
-            .then(reviewerRes => createdReviewers = reviewerRes);
+            .then(reviewerRes => createdReviewers = reviewerRes)
+            .then(() => createdReviewers.forEach((reviewer, index) => {
+                reviews[index].reviewer = reviewer;
+            }));
     });
 
     let actors = [
@@ -122,6 +134,7 @@ describe('end to end review testing', () => {
                 films[index].cast[0].actor = actor;
             }));
     });
+    
     beforeEach(() => {
         return Promise.all(studios.map(studioMaker))
             .then(studioRes => createdStudios = studioRes)
@@ -130,16 +143,32 @@ describe('end to end review testing', () => {
             }));
     });
 
-
     beforeEach(() => {
         return dropCollection('films');
     });
     beforeEach(() => {
         return Promise.all(films.map(filmProduction))
-            .then(filmRes => createdFilms = filmRes);
+            .then(filmRes => createdFilms = filmRes)
+            .then(() => createdFilms.forEach((film, index) => {
+                reviews[index].film = film;
+            }));
     });
 
+    const reviewWriter = review => {
+        return request(app)
+            .post('/reviews')
+            .send(review)
+            .then(res => res.body);
+    };
 
+    beforeEach(() => {
+        return dropCollection('reviews');
+    });
+
+    beforeEach(() => {
+        return Promise.all(reviews.map(reviewWriter))
+            .then(reviewRes => createdReviews = reviewRes);
+    });
 
     it('this creates a review', () => {
         const review = {
