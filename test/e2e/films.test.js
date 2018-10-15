@@ -167,9 +167,13 @@ describe('end to end film testing', () => {
                         }
                     }],
                 });
-
-
             });
+    });
+
+    it('deletes a film by id', () => {
+        return request(app)
+            .delete(`/films/${createdFilms[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ removed: true }));
     });
 
 
