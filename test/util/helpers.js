@@ -1,5 +1,7 @@
 const Chance = require('chance');
 const chance = new Chance();
+const request = require('supertest');
+const app = require('../../lib/app');
 
 const getErrors = (validation, numberExpected) => {
     expect(validation).toBeDefined();
@@ -11,6 +13,10 @@ const getErrors = (validation, numberExpected) => {
 class StudioHelper {
     constructor(){ 
         this.studios = [];
+        this.createdStudios = [];
+    }
+    init() {
+        this.studios = Array.apply(null, { length: 3 }).map(() => this.template());
     }
     template() {
         return {
@@ -29,8 +35,8 @@ class StudioHelper {
             .then(res => res.body);
     }
     taskRunner() {
-        return Promise.all(studios.map(studioMaker))
-            .then(studioRes => createdStudios = studioRes);
+        return Promise.all(this.studios.map(studio => this.task(studio)))
+            .then(studioRes => this.createdStudios = studioRes);
     }
 }
 

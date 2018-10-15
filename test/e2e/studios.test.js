@@ -3,53 +3,20 @@ const request = require('supertest');
 const app = require('../../lib/app');
 const Chance = require('chance');
 const chance = new Chance();
-// const helpers = require('../util/helpers');
+const { StudioHelper } = require('../util/helpers');
 
 describe('end to end studo testing', () => {
 
-    let studios = [
-        {
-            name: chance.name(),
-            address: {
-                city: chance.city(),
-                state: chance.state(),
-                country: chance.country({ full: true })
-            }
-        },
-        {
-            name: chance.name(),
-            address: {
-                city: chance.city(),
-                state: chance.state(),
-                country: chance.country({ full: true })
-            }
-        },
-        {
-            name: chance.name(),
-            address: {
-                city: chance.city(),
-                state: chance.state(),
-                country: chance.country({ full: true })
-            }
-        }
-    ];
+    const studioHelper = new StudioHelper;
 
-    let createdStudios;
-
-    const studioMaker = studio => {
-        return request(app)
-            .post('/studios')
-            .send(studio)
-            .then(res => res.body);
-    };
+    studioHelper.init();
 
     beforeEach(() => {
         return dropCollection('studios');
     });
 
     beforeEach(() => {
-        return Promise.all(studios.map(studioMaker))
-            .then(studioRes => createdStudios = studioRes);
+        return studioHelper.taskRunner();
     });
 
     it('this creates a studio', () => {
@@ -77,7 +44,7 @@ describe('end to end studo testing', () => {
         return request(app)
             .get('/studios')
             .then(retrievedStudios => {
-                createdStudios.forEach(createdStudio => {
+                studioHelper.createdStudios.forEach(createdStudio => {
                     expect(retrievedStudios.body).toContainEqual({ _id: createdStudio._id, name: createdStudio.name });
                 });
             });
@@ -85,13 +52,13 @@ describe('end to end studo testing', () => {
 
     it('gets a studio by id', () => {
         return request(app)
-            .get(`/studios/${createdStudios[0]._id}`)
-            .then(({ body }) => expect(body).toEqual({ ...createdStudios[0] }));
+            .get(`/studios/${studioHelper.createdStudios[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ ...studioHelper.createdStudios[0] }));
     });
 
     it('deletes a studio by id', () => {
         return request(app)
-            .delete(`/studios/${createdStudios[0]._id}`)
+            .delete(`/studios/${studioHelper.createdStudios[0]._id}`)
             .then(({ body }) => expect(body).toEqual({ removed: true }));
     });
 
