@@ -136,11 +136,10 @@ describe('end to end film testing', () => {
             .get('/films')
             .then(retrievedFilms => {
                 console.log(retrievedFilms.body);
-                createdFilms.forEach(createdFilm => {
+                createdFilms.forEach(() => {
                     expect(retrievedFilms.body).toContainEqual({ 
-                        // ...createdFilms[0],
                         title: createdFilms[0].title,
-                        studio: createdFilms[0].studio,
+                        studio: { _id: createdFilms[0].studio, name: createdStudios[0].name },
                         released: createdFilms[0].released,
                         _id: expect.any(String),
                     });
