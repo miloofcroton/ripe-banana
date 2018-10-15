@@ -30,6 +30,7 @@ describe('end to end reviewer testing', () => {
             .then(res => res.body);
     };
 
+
     beforeEach(() => {
         return dropCollection('reviewers');
     });
@@ -37,7 +38,7 @@ describe('end to end reviewer testing', () => {
     beforeEach(() => {
         return Promise.all(reviewers.map(tumblr))
             .then(reviewerRes => createdReviewers = reviewerRes);
-    });    
+    });
     
     it('this creates a reviewer', () => {
         const reviewer = {

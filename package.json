@@ -12,7 +12,7 @@
     "coverage": "jest --coverage --detectOpenHandles",
     "jest": "jest --verbose",
     "test": "npm run jest",
-    "test:watch": "npm run jest -- --watch",
+    "test:watch": "npm run jest -- --runInBand --watch",
     "start": "nodemon index.js"
   },
   "devDependencies": {

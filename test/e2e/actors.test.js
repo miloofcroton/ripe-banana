@@ -34,12 +34,12 @@ describe('end to end actor testing', () => {
     };
 
     beforeEach(() => {
-        return Promise.all(actors.map(actingSchool))
-            .then(actorRes => createdActors = actorRes);
+        return dropCollection('actors');
     });
 
-    afterEach(() => {
-        return dropCollection('actors');
+    beforeEach(() => {
+        return Promise.all(actors.map(actingSchool))
+            .then(actorRes => createdActors = actorRes);
     });
 
     it('gets all actors', () => {
