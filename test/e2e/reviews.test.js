@@ -13,13 +13,6 @@ describe('end to end review testing', () => {
     let createdFilms;
     let createdReviews;
 
-    let reviews = [{
-        rating: chance.natural({ min: 1, max: 5 }),
-        review: chance.string({ length: 50 })
-    }, {
-        rating: chance.natural({ min: 1, max: 5 }),
-        review: chance.string({ length: 50 })
-    }];
     
     let reviewers = [
         {
@@ -29,11 +22,18 @@ describe('end to end review testing', () => {
         {
             name: chance.name(),
             company: chance.company()
+        }
+    ];
+
+    let reviews = [
+        {
+            rating: chance.natural({ min: 1, max: 5 }),
+            review: chance.string({ length: 50 })
         },
         {
-            name: chance.name(),
-            company: chance.company()
-        },
+            rating: chance.natural({ min: 1, max: 5 }),
+            review: chance.string({ length: 50 })
+        }
     ];
 
     const tumblr = reviewer => {
@@ -86,20 +86,22 @@ describe('end to end review testing', () => {
             }
         },
     ];
-    let films = [{
-        title: chance.word(),
-        released: chance.natural({ min: 1900, max: 2050 }),
-        cast: [{
-            role: chance.name(),
-        }]
-    },
-    {
-        title: chance.word(),
-        released: chance.natural({ min: 1900, max: 2050 }),
-        cast: [{
-            role: chance.name(),
-        }]
-    }];
+    let films = [
+        {
+            title: chance.word(),
+            released: chance.natural({ min: 1900, max: 2050 }),
+            cast: [{
+                role: chance.name(),
+            }]
+        },
+        {
+            title: chance.word(),
+            released: chance.natural({ min: 1900, max: 2050 }),
+            cast: [{
+                role: chance.name(),
+            }]
+        }
+    ];
 
     const actingSchool = actor => {
         return request(app)
@@ -189,6 +191,26 @@ describe('end to end review testing', () => {
                     __v: expect.any(Number)
                 });
             });
+    });
+
+    it('gets all reviews', () => {
+
+        return request(app)
+            .get('/reviews')
+            .then(({ body }) => {
+                createdReviews.forEach((createdReview, index) => {
+                    expect(body).toContainEqual({ 
+                        _id: createdReview._id, 
+                        review: createdReview.review, 
+                        rating: createdReview.rating,
+                        film: {
+                            _id: createdReview.film,
+                            title: createdFilms[index].title
+                        }
+                    });
+                });
+            });
+
     });
 
 
