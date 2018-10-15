@@ -143,7 +143,7 @@ describe('end to end review testing', () => {
 
     it('this creates a review', () => {
         const review = {
-            rating: chance.natural(),
+            rating: chance.natural({ min: 1, max: 5 }),
             review: chance.string({ length: 50 }),
             reviewer: createdReviewers[0]._id,
             film: createdFilms[0]._id
