@@ -96,7 +96,6 @@ describe('end to end film testing', () => {
             }));
     });
 
-
     beforeEach(() => {
         return dropCollection('films');
     });
@@ -104,7 +103,6 @@ describe('end to end film testing', () => {
         return Promise.all(films.map(filmProduction))
             .then(filmRes => createdFilms = filmRes);
     });
-
 
     it('this creates a film', () => {
 

@@ -195,20 +195,20 @@ describe('end to end review testing', () => {
             .get('/reviews')
             .then(({ body }) => {
                 expect(body).toContainEqual({ 
-                    _id: createdReviews[0]._id, 
-                    review: createdReviews[0].review, 
-                    rating: createdReviews[0].rating,
+                    _id: createdReviews[100]._id, 
+                    review: createdReviews[100].review, 
+                    rating: createdReviews[100].rating,
                     film: {
-                        _id: createdReviews[0].film,
+                        _id: createdReviews[100].film,
                         title: createdFilms[0].title
                     }
                 });
                 expect(body).toContainEqual({ 
-                    _id: createdReviews[1]._id, 
-                    review: createdReviews[1].review, 
-                    rating: createdReviews[1].rating,
+                    _id: createdReviews[101]._id, 
+                    review: createdReviews[101].review, 
+                    rating: createdReviews[101].rating,
                     film: {
-                        _id: createdReviews[1].film,
+                        _id: createdReviews[101].film,
                         title: createdFilms[1].title
                     }
                 });
