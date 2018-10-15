@@ -25,16 +25,12 @@ describe('end to end review testing', () => {
         }
     ];
 
-    let reviews = [
-        {
+    let reviews = Array.apply(null, { length: 104 }).map(() => {
+        return {
             rating: chance.natural({ min: 1, max: 5 }),
             review: chance.string({ length: 50 })
-        },
-        {
-            rating: chance.natural({ min: 1, max: 5 }),
-            review: chance.string({ length: 50 })
-        }
-    ];
+        };
+    });
 
     const tumblr = reviewer => {
         return request(app)
@@ -51,8 +47,8 @@ describe('end to end review testing', () => {
     beforeEach(() => {
         return Promise.all(reviewers.map(tumblr))
             .then(reviewerRes => createdReviewers = reviewerRes)
-            .then(() => createdReviewers.forEach((reviewer, index) => {
-                reviews[index].reviewer = reviewer;
+            .then(() => reviews.forEach((review, index) => {
+                review.reviewer = createdReviewers[index % 2]._id;                
             }));
     });
 
@@ -151,8 +147,8 @@ describe('end to end review testing', () => {
     beforeEach(() => {
         return Promise.all(films.map(filmProduction))
             .then(filmRes => createdFilms = filmRes)
-            .then(() => createdFilms.forEach((film, index) => {
-                reviews[index].film = film;
+            .then(() => reviews.forEach((review, index) => {
+                review.film = createdFilms[index % 2]._id;                
             }));
     });
 
@@ -198,21 +194,35 @@ describe('end to end review testing', () => {
         return request(app)
             .get('/reviews')
             .then(({ body }) => {
-                createdReviews.forEach((createdReview, index) => {
-                    expect(body).toContainEqual({ 
-                        _id: createdReview._id, 
-                        review: createdReview.review, 
-                        rating: createdReview.rating,
-                        film: {
-                            _id: createdReview.film,
-                            title: createdFilms[index].title
-                        }
-                    });
+                expect(body).toContainEqual({ 
+                    _id: createdReviews[0]._id, 
+                    review: createdReviews[0].review, 
+                    rating: createdReviews[0].rating,
+                    film: {
+                        _id: createdReviews[0].film,
+                        title: createdFilms[0].title
+                    }
+                });
+                expect(body).toContainEqual({ 
+                    _id: createdReviews[1]._id, 
+                    review: createdReviews[1].review, 
+                    rating: createdReviews[1].rating,
+                    film: {
+                        _id: createdReviews[1].film,
+                        title: createdFilms[1].title
+                    }
                 });
             });
-
     });
 
+    it('gets only the 100 reviews', () => {
+
+        return request(app)
+            .get('/reviews')
+            .then(({ body }) => {
+                expect(body.length).toEqual(100);
+            });
+    });
 
 
 });
