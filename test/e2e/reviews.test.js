@@ -10,17 +10,15 @@ describe('end to end review testing', () => {
     const rh = new ResourceHelper;
 
     beforeEach(() => {
-
         return (async() => {
-            
             await Promise.all([dropCollection('films'), dropCollection('reviews')]);
-            await Promise.all([await rh.init('reviews', 104), await rh.init('films', 104)]);
+            await Promise.all([rh.init('reviews', 104), rh.init('films', 104)]);
 
             await rh.wrapper('reviewers', 2);
             await rh.assign('reviews', 'createdReviewers', 'reviewer');
             
             await rh.wrapper('actors', 2);
-            await rh.films.forEach((film, index) => film.cast[0].actor = rh.createdActors[index % 2]._id);
+            await rh.assign('films', 'createdActors', 'cast[0].actor');
             
             await rh.wrapper('studios', 2);
             await rh.assign('films', 'createdStudios', 'studio');
@@ -31,32 +29,6 @@ describe('end to end review testing', () => {
             await rh.taskRunner('reviews');
         })();
     });
-    // beforeEach(() => {
-    //     return (async() => {
-    //         await Promise.all([
-    //             rh.init('reviews', 104), 
-    //             rh.init('reviewers', 2), 
-    //             rh.init('films', 2), 
-    //             rh.init('studios', 2), 
-    //             rh.init('actors', 2)
-    //         ]);
-    //         await Promise.all([
-    //             dropCollection('reviewers'),
-    
-    //             dropCollection('actors'),
-    //             dropCollection('studios'),
-    //         ]);
-    //         await rh.taskRunner('reviewers');
-    //         await rh.assign('reviews', 'createdReviewers', 'reviewer');
-    //         await rh.taskRunner('actors');
-    //         await rh.films.forEach((film, index) => film.cast[0].actor = rh.createdActors[index % 2]._id);
-    //         await rh.taskRunner('studios');
-    //         await rh.assign('films', 'createdStudios', 'studio');
-    //         await rh.taskRunner('films');
-    //         await rh.assign('reviews', 'createdFilms', 'film');
-    //         await rh.taskRunner('reviews');
-    //     })();
-    // });
 
     it('this creates a review', () => {
         const review = {

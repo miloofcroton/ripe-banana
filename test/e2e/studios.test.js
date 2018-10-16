@@ -6,9 +6,9 @@ const { ResourceHelper } = require('../util/helpers');
 
 describe('end to end studo testing', () => {
 
-    const resourceHelper = new ResourceHelper;
+    const rh = new ResourceHelper;
 
-    beforeEach(() => resourceHelper.wrapper('studios', 3));
+    beforeEach(() => rh.wrapper('studios', 3));
     
     it('this creates a studio', () => {
         const studio = {
@@ -35,7 +35,7 @@ describe('end to end studo testing', () => {
         return request(app)
             .get('/studios')
             .then(({ body }) => {
-                resourceHelper.createdStudios.forEach(createdStudio => {
+                rh.createdStudios.forEach(createdStudio => {
                     expect(body).toContainEqual({ _id: createdStudio._id, name: createdStudio.name });
                 });
             });
@@ -43,16 +43,13 @@ describe('end to end studo testing', () => {
 
     it('gets a studio by id', () => {
         return request(app)
-            .get(`/studios/${resourceHelper.createdStudios[0]._id}`)
-            .then(({ body }) => expect(body).toEqual({ ...resourceHelper.createdStudios[0] }));
+            .get(`/studios/${rh.createdStudios[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ ...rh.createdStudios[0] }));
     });
 
     it('deletes a studio by id', () => {
         return request(app)
-            .delete(`/studios/${resourceHelper.createdStudios[0]._id}`)
+            .delete(`/studios/${rh.createdStudios[0]._id}`)
             .then(({ body }) => expect(body).toEqual({ removed: true }));
     });
-
-    
-
 });

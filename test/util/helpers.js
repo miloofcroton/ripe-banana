@@ -13,16 +13,11 @@ const getErrors = (validation, numberExpected) => {
 
 class ResourceHelper {
     constructor(){ 
-        this.studios = [];
-        this.createdStudios = [];
-        this.actors = [];
-        this.createdActors = [];
-        this.films = [];
-        this.createdFilms = [];
-        this.reviews = [];
-        this.createdReviews = [];
-        this.reviewers = [];
-        this.createdReviewers = [];
+        this.studios, this.createdStudios,
+        this.actors, this.createdActors,
+        this.films, this.createdFilms,
+        this.reviews, this.createdReviews,
+        this.reviewers, this.createdReviewers = [];
     }
     init(resource, length) {
         this[resource] = Array.apply(null, { length: length }).map(() => this.template(`${resource}`));
@@ -81,16 +76,20 @@ class ResourceHelper {
             .then(response => this['created' + resource.replace(/^\w/, c => c.toUpperCase())] = response);
     }
 
-    async wrapper(resource, number) {
+    async wrapper(resource, number, callback) {
         await this.init(resource, number);
         await dropCollection(resource);
         await this.taskRunner(resource);
     }
 
     assign(collection, source, link) {
-        this[collection].forEach((item, index) => item[link] = this[source][index % 2]._id);
+        if(link === 'cast[0].actor') this.films.forEach((film, index) => { 
+            film.cast[0].actor = this.createdActors[index % 2]._id;
+        });
+        else this[collection].forEach((item, index) => {
+            item[link] = this[source][index % 2]._id;
+        });
     }
-
 }
 
 module.exports = {

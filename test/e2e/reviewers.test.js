@@ -6,9 +6,9 @@ const { ResourceHelper } = require('../util/helpers');
 
 describe('end to end reviewer testing', () => {
 
-    const resourceHelper = new ResourceHelper;
+    const rh = new ResourceHelper;
 
-    beforeEach(() => resourceHelper.wrapper('reviewers', 3));
+    beforeEach(() => rh.wrapper('reviewers', 3));
     
     it('this creates a reviewer', () => {
         const reviewer = {
@@ -31,7 +31,7 @@ describe('end to end reviewer testing', () => {
         return request(app)
             .get('/reviewer')
             .then(retrievedReviewers => {
-                resourceHelper.createdReviewers.forEach(createdReviewer => {
+                rh.createdReviewers.forEach(createdReviewer => {
                     expect(retrievedReviewers.body).toContainEqual({ _id: createdReviewer._id, name: createdReviewer.name, company: createdReviewer.company });
                 });
             });
@@ -39,8 +39,8 @@ describe('end to end reviewer testing', () => {
 
     it('gets a reviewer by id', () => {
         return request(app)
-            .get(`/reviewer/${resourceHelper.createdReviewers[0]._id}`)
-            .then(({ body }) => expect(body).toEqual({ _id: resourceHelper.createdReviewers[0]._id, name: resourceHelper.createdReviewers[0].name, company: resourceHelper.createdReviewers[0].company }));
+            .get(`/reviewer/${rh.createdReviewers[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ _id: rh.createdReviewers[0]._id, name: rh.createdReviewers[0].name, company: rh.createdReviewers[0].company }));
     });
 
     it('updates a reviewer', () => {
@@ -51,12 +51,8 @@ describe('end to end reviewer testing', () => {
         };
 
         return request(app)
-            .put(`/reviewer/${resourceHelper.createdReviewers[0]._id}`)
+            .put(`/reviewer/${rh.createdReviewers[0]._id}`)
             .send(newReviewer)
             .then(({ body }) => expect(body).toEqual({ _id: expect.any(String), name: newReviewer.name, company: newReviewer.company }));
-
-
-
-    });
-    
+    }); 
 });
