@@ -3,20 +3,20 @@ const request = require('supertest');
 const app = require('../../lib/app');
 const Chance = require('chance');
 const chance = new Chance();
-const { StudioHelper } = require('../util/helpers');
+const { ResourceHelper } = require('../util/helpers');
 
 describe('end to end studo testing', () => {
 
-    const studioHelper = new StudioHelper;
+    const resourceHelper = new ResourceHelper;
 
-    studioHelper.init();
+    resourceHelper.init('studios', 3);
 
     beforeEach(() => {
         return dropCollection('studios');
     });
 
     beforeEach(() => {
-        return studioHelper.taskRunner();
+        return resourceHelper.taskRunner('studio');
     });
 
     it('this creates a studio', () => {
@@ -43,22 +43,22 @@ describe('end to end studo testing', () => {
     it('gets all studios', () => {
         return request(app)
             .get('/studios')
-            .then(retrievedStudios => {
-                studioHelper.createdStudios.forEach(createdStudio => {
-                    expect(retrievedStudios.body).toContainEqual({ _id: createdStudio._id, name: createdStudio.name });
+            .then(({ body }) => {
+                resourceHelper.createdStudios.forEach(createdStudio => {
+                    expect(body).toContainEqual({ _id: createdStudio._id, name: createdStudio.name });
                 });
             });
     });
 
     it('gets a studio by id', () => {
         return request(app)
-            .get(`/studios/${studioHelper.createdStudios[0]._id}`)
-            .then(({ body }) => expect(body).toEqual({ ...studioHelper.createdStudios[0] }));
+            .get(`/studios/${resourceHelper.createdStudios[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ ...resourceHelper.createdStudios[0] }));
     });
 
     it('deletes a studio by id', () => {
         return request(app)
-            .delete(`/studios/${studioHelper.createdStudios[0]._id}`)
+            .delete(`/studios/${resourceHelper.createdStudios[0]._id}`)
             .then(({ body }) => expect(body).toEqual({ removed: true }));
     });
 
