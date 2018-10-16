@@ -83,8 +83,6 @@ describe('end to end film testing', () => {
         return request(app)
             .get(`/films/${resourceHelper.createdFilms[0]._id}`)
             .then(({ body }) => {
-                console.log(body);
-
                 expect(body).toEqual({
                     _id: resourceHelper.createdFilms[0]._id,
                     title: resourceHelper.createdFilms[0].title,
