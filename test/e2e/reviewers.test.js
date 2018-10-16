@@ -3,42 +3,15 @@ const request = require('supertest');
 const app = require('../../lib/app');
 const Chance = require('chance');
 const chance = new Chance();
+const { ResourceHelper } = require('../util/helpers');
 
 describe('end to end reviewer testing', () => {
 
-    let reviewers = [
-        {
-            name: chance.name(),
-            company: chance.company()
-        },
-        {
-            name: chance.name(),
-            company: chance.company()
-        },
-        {
-            name: chance.name(),
-            company: chance.company()
-        },
-    ];
+    const resourceHelper = new ResourceHelper;
 
-    let createdReviewers;
-
-    const tumblr = reviewer => {
-        return request(app)
-            .post('/reviewer')
-            .send(reviewer)
-            .then(res => res.body);
-    };
-
-
-    beforeEach(() => {
-        return dropCollection('reviewers');
-    });
-
-    beforeEach(() => {
-        return Promise.all(reviewers.map(tumblr))
-            .then(reviewerRes => createdReviewers = reviewerRes);
-    });
+    resourceHelper.init('reviewers', 3);
+    beforeEach(() => dropCollection('reviewers'));
+    beforeEach(() => resourceHelper.taskRunner('reviewer'));
     
     it('this creates a reviewer', () => {
         const reviewer = {
@@ -61,7 +34,7 @@ describe('end to end reviewer testing', () => {
         return request(app)
             .get('/reviewer')
             .then(retrievedReviewers => {
-                createdReviewers.forEach(createdReviewer => {
+                resourceHelper.createdReviewers.forEach(createdReviewer => {
                     expect(retrievedReviewers.body).toContainEqual({ _id: createdReviewer._id, name: createdReviewer.name, company: createdReviewer.company });
                 });
             });
@@ -69,8 +42,8 @@ describe('end to end reviewer testing', () => {
 
     it('gets a reviewer by id', () => {
         return request(app)
-            .get(`/reviewer/${createdReviewers[0]._id}`)
-            .then(({ body }) => expect(body).toEqual({ _id: createdReviewers[0]._id, name: createdReviewers[0].name, company: createdReviewers[0].company }));
+            .get(`/reviewer/${resourceHelper.createdReviewers[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ _id: resourceHelper.createdReviewers[0]._id, name: resourceHelper.createdReviewers[0].name, company: resourceHelper.createdReviewers[0].company }));
     });
 
     it('updates a reviewer', () => {
@@ -81,7 +54,7 @@ describe('end to end reviewer testing', () => {
         };
 
         return request(app)
-            .put(`/reviewer/${createdReviewers[0]._id}`)
+            .put(`/reviewer/${resourceHelper.createdReviewers[0]._id}`)
             .send(newReviewer)
             .then(({ body }) => expect(body).toEqual({ _id: expect.any(String), name: newReviewer.name, company: newReviewer.company }));
 

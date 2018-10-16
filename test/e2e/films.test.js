@@ -3,115 +3,49 @@ const request = require('supertest');
 const app = require('../../lib/app');
 const Chance = require('chance');
 const chance = new Chance();
+const { ResourceHelper } = require('../util/helpers');
 
 describe('end to end film testing', () => {
 
-    let createdActors;
-    let createdStudios;
-    let createdFilms;
+    const resourceHelper = new ResourceHelper;
 
-    let actors = [
-        {
-            name: chance.name(),
-            dob: chance.birthday(),
-            pob: chance.city()
-        },
-        {
-            name: chance.name(),
-            dob: chance.birthday(),
-            pob: chance.city()
-        },
-    ];
-    let studios = [
-        {
-            name: chance.name(),
-            address: {
-                city: chance.city(),
-                state: chance.state(),
-                country: chance.country({ full: true })
-            }
-        },
-        {
-            name: chance.name(),
-            address: {
-                city: chance.city(),
-                state: chance.state(),
-                country: chance.country({ full: true })
-            }
-        },
-    ];
-    let films = [{
-        title: chance.word(),
-        released: chance.natural({ min: 1900, max: 2050 }),
-        cast: [{
-            role: chance.name(),
-        }]
-    },
-    {
-        title: chance.word(),
-        released: chance.natural({ min: 1900, max: 2050 }),
-        cast: [{
-            role: chance.name(),
-        }]
-    }];
-
-    const actingSchool = actor => {
-        return request(app)
-            .post('/actors')
-            .send(actor)
-            .then(res => res.body);
-    };
-    const studioMaker = studio => {
-        return request(app)
-            .post('/studios')
-            .send(studio)
-            .then(res => res.body);
-    };
-    const filmProduction = film => {
-        return request(app)
-            .post('/films')
-            .send(film)
-            .then(res => res.body);
-    };
+    resourceHelper.init('actors', 2);
+    resourceHelper.init('studios', 2);
+    resourceHelper.init('films', 2);
 
     beforeEach(() => {
-        return dropCollection('actors');
-    });
-    beforeEach(() => {
-        return dropCollection('studios');
+        return Promise.all([
+            dropCollection('films'),
+            dropCollection('actors'),
+            dropCollection('studios'),
+        ]);
     });
 
     beforeEach(() => {
-        return Promise.all(actors.map(actingSchool))
-            .then(actorRes => createdActors = actorRes)
-            .then(() => createdActors.forEach((actor, index) => {
-                films[index].cast[0].actor = actor;
+        return resourceHelper.taskRunner('actor')
+            .then(() => resourceHelper.createdActors.forEach((actor, index) => {
+                resourceHelper.films[index].cast[0].actor = actor;
             }));
     });
     beforeEach(() => {
-        return Promise.all(studios.map(studioMaker))
-            .then(studioRes => createdStudios = studioRes)
-            .then(() => createdStudios.forEach((studio, index) => {
-                films[index].studio = studio;
+        return resourceHelper.taskRunner('studio')
+            .then(() => resourceHelper.createdStudios.forEach((studio, index) => {
+                resourceHelper.films[index].studio = studio;
             }));
     });
 
     beforeEach(() => {
-        return dropCollection('films');
-    });
-    beforeEach(() => {
-        return Promise.all(films.map(filmProduction))
-            .then(filmRes => createdFilms = filmRes);
+        return resourceHelper.taskRunner('film');
     });
 
     it('this creates a film', () => {
 
         const film = {
             title: chance.word(),
-            studio: createdStudios[0]._id,
+            studio: resourceHelper.createdStudios[0]._id,
             released: chance.natural({ min: 1900, max: 2050 }),
             cast: [{
-                actor: createdActors[0]._id,
+                actor: resourceHelper.createdActors[0]._id,
                 role: chance.name()
             }]
         };
@@ -133,11 +67,11 @@ describe('end to end film testing', () => {
         return request(app)
             .get('/films')
             .then(retrievedFilms => {
-                createdFilms.forEach(() => {
+                resourceHelper.createdFilms.forEach(() => {
                     expect(retrievedFilms.body).toContainEqual({ 
-                        title: createdFilms[0].title,
-                        studio: { _id: createdFilms[0].studio, name: createdStudios[0].name },
-                        released: createdFilms[0].released,
+                        title: resourceHelper.createdFilms[0].title,
+                        studio: { _id: resourceHelper.createdFilms[0].studio, name: resourceHelper.createdStudios[0].name },
+                        released: resourceHelper.createdFilms[0].released,
                         _id: expect.any(String),
                     });
 
@@ -147,21 +81,21 @@ describe('end to end film testing', () => {
 
     it('gets a film by id', () => {
         return request(app)
-            .get(`/films/${createdFilms[0]._id}`)
+            .get(`/films/${resourceHelper.createdFilms[0]._id}`)
             .then(({ body }) => {
                 console.log(body);
 
                 expect(body).toEqual({
-                    _id: createdFilms[0]._id,
-                    title: createdFilms[0].title,
-                    released: createdFilms[0].released,
-                    studio: { _id: createdFilms[0].studio, name: createdStudios[0].name },
+                    _id: resourceHelper.createdFilms[0]._id,
+                    title: resourceHelper.createdFilms[0].title,
+                    released: resourceHelper.createdFilms[0].released,
+                    studio: { _id: resourceHelper.createdFilms[0].studio, name: resourceHelper.createdStudios[0].name },
                     cast: [{
-                        _id: createdFilms[0].cast[0]._id,
-                        role: createdFilms[0].cast[0].role,
+                        _id: resourceHelper.createdFilms[0].cast[0]._id,
+                        role: resourceHelper.createdFilms[0].cast[0].role,
                         actor: {
-                            _id: createdActors[0]._id,
-                            name: createdActors[0].name
+                            _id: resourceHelper.createdActors[0]._id,
+                            name: resourceHelper.createdActors[0].name
                         }
                     }],
                 });
@@ -170,14 +104,9 @@ describe('end to end film testing', () => {
 
     it('deletes a film by id', () => {
         return request(app)
-            .delete(`/films/${createdFilms[0]._id}`)
+            .delete(`/films/${resourceHelper.createdFilms[0]._id}`)
             .then(({ body }) => expect(body).toEqual({ removed: true }));
     });
-
-
-
-
-
 
 });
 
