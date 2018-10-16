@@ -3,6 +3,7 @@ const app = require('../../lib/app');
 const Chance = require('chance');
 const chance = new Chance();
 const { ResourceHelper } = require('../util/helpers');
+const { dropCollection } = require('../util/db');
 
 describe('end to end studo testing', () => {
 
@@ -51,5 +52,25 @@ describe('end to end studo testing', () => {
         return request(app)
             .delete(`/studios/${rh.createdStudios[0]._id}`)
             .then(({ body }) => expect(body).toEqual({ removed: true }));
+    });
+
+    it('does not delete a studio if there are films', () => {
+        (async() => {
+            await dropCollection('films');
+            await rh.init('films', 104);
+
+            await rh.wrapper('actors', 2);
+            await rh.assign('films', 'createdActors', 'cast[0].actor');
+
+            await rh.wrapper('studios', 2);
+            await rh.assign('films', 'createdStudios', 'studio');
+            
+            await rh.taskRunner('films');
+        })();
+        return request(app)
+            .delete(`/studios/${rh.createdStudios[0]._id}`)
+            .then(({ body }) => expect(body).toEqual({ removed: false }));
+        
+    
     });
 });
