@@ -1,6 +1,7 @@
 const Chance = require('chance');
 const chance = new Chance();
 const request = require('supertest');
+const { dropCollection } = require('../util/db');
 const app = require('../../lib/app');
 
 const getErrors = (validation, numberExpected) => {
@@ -63,11 +64,11 @@ class ResourceHelper {
     } 
     task(resource, data) {
         const routes = {
-            studio: '/studios',
-            actor: '/actors',
-            reviewer: '/reviewer',
-            review: '/reviews',
-            film: '/films'
+            studios: '/studios',
+            actors: '/actors',
+            reviewers: '/reviewer',
+            reviews: '/reviews',
+            films: '/films'
         };
         const route = routes[resource];
         return request(app)
@@ -76,8 +77,18 @@ class ResourceHelper {
             .then(res => res.body);
     }
     taskRunner(resource) {
-        return Promise.all(this[resource + 's'].map(item => this.task(resource, item)))
-            .then(response => this['created' + resource.slice(0, 1).toUpperCase() + resource.slice(1) + 's'] = response);
+        return Promise.all(this[resource].map(item => this.task(resource, item)))
+            .then(response => this['created' + resource.replace(/^\w/, c => c.toUpperCase())] = response);
+    }
+
+    async wrapper(resource, number) {
+        await this.init(resource, number);
+        await dropCollection(resource);
+        await this.taskRunner(resource);
+    }
+
+    assign(collection, source, link) {
+        this[collection].forEach((item, index) => item[link] = this[source][index % 2]._id);
     }
 
 }

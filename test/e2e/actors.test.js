@@ -1,4 +1,3 @@
-const { dropCollection } = require('../util/db');
 const request = require('supertest');
 const app = require('../../lib/app');
 const Chance = require('chance');
@@ -9,13 +8,7 @@ describe('end to end actor testing', () => {
 
     const resourceHelper = new ResourceHelper;
 
-    beforeEach(() => {
-        return (async() => {
-            await resourceHelper.init('actors', 3);
-            await dropCollection('actors');
-            await resourceHelper.taskRunner('actor');
-        })();
-    });
+    beforeEach(() => resourceHelper.wrapper('actors', 3));
 
     it('gets all actors', () => {
         return request(app)

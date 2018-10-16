@@ -17,15 +17,15 @@ describe('end to end film testing', () => {
             await dropCollection('films');
             await dropCollection('actors');
             await dropCollection('studios');
-            await resourceHelper.taskRunner('actor')
+            await resourceHelper.taskRunner('actors')
                 .then(() => resourceHelper.createdActors.forEach((actor, index) => {
                     resourceHelper.films[index].cast[0].actor = actor;
                 }));
-            await resourceHelper.taskRunner('studio')
+            await resourceHelper.taskRunner('studios')
                 .then(() => resourceHelper.createdStudios.forEach((studio, index) => {
                     resourceHelper.films[index].studio = studio;
                 }));
-            await resourceHelper.taskRunner('film');
+            await resourceHelper.taskRunner('films');
         })();
     });
 

@@ -1,4 +1,3 @@
-const { dropCollection } = require('../util/db');
 const request = require('supertest');
 const app = require('../../lib/app');
 const Chance = require('chance');
@@ -9,13 +8,7 @@ describe('end to end reviewer testing', () => {
 
     const resourceHelper = new ResourceHelper;
 
-    beforeEach(() => {
-        return (async() => {
-            resourceHelper.init('reviewers', 3);
-            await dropCollection('reviewers');
-            await resourceHelper.taskRunner('reviewer');
-        })();
-    });
+    beforeEach(() => resourceHelper.wrapper('reviewers', 3));
     
     it('this creates a reviewer', () => {
         const reviewer = {

@@ -7,47 +7,63 @@ const { ResourceHelper } = require('../util/helpers');
 
 describe('end to end review testing', () => {
 
-    const resourceHelper = new ResourceHelper;
+    const rh = new ResourceHelper;
 
     beforeEach(() => {
+
         return (async() => {
-            await resourceHelper.init('reviews', 104);
-            await resourceHelper.init('reviewers', 2);
-            await resourceHelper.init('films', 2);
-            await resourceHelper.init('studios', 2);
-            await resourceHelper.init('actors', 2);
-            await dropCollection('reviewers');
-            await dropCollection('films');
-            await dropCollection('actors');
-            await dropCollection('studios');
-            await dropCollection('reviews');
-            await resourceHelper.taskRunner('actor');
-            await resourceHelper.taskRunner('reviewer')
-                .then(() => resourceHelper.reviews.forEach((review, index) => {
-                    review.reviewer = resourceHelper.createdReviewers[index % 2]._id;
-                }));
-            await resourceHelper.taskRunner('actor')
-                .then(() => resourceHelper.createdActors.forEach((actor, index) => {
-                    resourceHelper.films[index].cast[0].actor = actor;
-                }));
-            await resourceHelper.taskRunner('studio')
-                .then(() => resourceHelper.createdStudios.forEach((studio, index) => {
-                    resourceHelper.films[index].studio = studio;
-                }));
-            await resourceHelper.taskRunner('film')
-                .then(() => resourceHelper.reviews.forEach((review, index) => {
-                    review.film = resourceHelper.createdFilms[index % 2]._id;
-                }));
-            await resourceHelper.taskRunner('review');
+            
+            await Promise.all([dropCollection('films'), dropCollection('reviews')]);
+            await Promise.all([await rh.init('reviews', 104), await rh.init('films', 104)]);
+
+            await rh.wrapper('reviewers', 2);
+            await rh.assign('reviews', 'createdReviewers', 'reviewer');
+            
+            await rh.wrapper('actors', 2);
+            await rh.films.forEach((film, index) => film.cast[0].actor = rh.createdActors[index % 2]._id);
+            
+            await rh.wrapper('studios', 2);
+            await rh.assign('films', 'createdStudios', 'studio');
+            
+            await rh.taskRunner('films');
+            await rh.assign('reviews', 'createdFilms', 'film');
+
+            await rh.taskRunner('reviews');
         })();
     });
+    // beforeEach(() => {
+    //     return (async() => {
+    //         await Promise.all([
+    //             rh.init('reviews', 104), 
+    //             rh.init('reviewers', 2), 
+    //             rh.init('films', 2), 
+    //             rh.init('studios', 2), 
+    //             rh.init('actors', 2)
+    //         ]);
+    //         await Promise.all([
+    //             dropCollection('reviewers'),
+    
+    //             dropCollection('actors'),
+    //             dropCollection('studios'),
+    //         ]);
+    //         await rh.taskRunner('reviewers');
+    //         await rh.assign('reviews', 'createdReviewers', 'reviewer');
+    //         await rh.taskRunner('actors');
+    //         await rh.films.forEach((film, index) => film.cast[0].actor = rh.createdActors[index % 2]._id);
+    //         await rh.taskRunner('studios');
+    //         await rh.assign('films', 'createdStudios', 'studio');
+    //         await rh.taskRunner('films');
+    //         await rh.assign('reviews', 'createdFilms', 'film');
+    //         await rh.taskRunner('reviews');
+    //     })();
+    // });
 
     it('this creates a review', () => {
         const review = {
             rating: chance.natural({ min: 1, max: 5 }),
             review: chance.string({ length: 50 }),
-            reviewer: resourceHelper.createdReviewers[0]._id,
-            film: resourceHelper.createdFilms[0]._id
+            reviewer: rh.createdReviewers[0]._id,
+            film: rh.createdFilms[0]._id
         };
         return request(app)
             .post('/reviews')
@@ -69,21 +85,21 @@ describe('end to end review testing', () => {
             .get('/reviews')
             .then(({ body }) => {
                 expect(body).toContainEqual({ 
-                    _id: resourceHelper.createdReviews[100]._id, 
-                    review: resourceHelper.createdReviews[100].review, 
-                    rating: resourceHelper.createdReviews[100].rating,
+                    _id: rh.createdReviews[100]._id, 
+                    review: rh.createdReviews[100].review, 
+                    rating: rh.createdReviews[100].rating,
                     film: {
-                        _id: resourceHelper.createdReviews[100].film,
-                        title: resourceHelper.createdFilms[0].title
+                        _id: rh.createdReviews[100].film,
+                        title: rh.createdFilms[0].title
                     }
                 });
                 expect(body).toContainEqual({ 
-                    _id: resourceHelper.createdReviews[101]._id, 
-                    review: resourceHelper.createdReviews[101].review, 
-                    rating: resourceHelper.createdReviews[101].rating,
+                    _id: rh.createdReviews[101]._id, 
+                    review: rh.createdReviews[101].review, 
+                    rating: rh.createdReviews[101].rating,
                     film: {
-                        _id: resourceHelper.createdReviews[101].film,
-                        title: resourceHelper.createdFilms[1].title
+                        _id: rh.createdReviews[101].film,
+                        title: rh.createdFilms[1].title
                     }
                 });
             });

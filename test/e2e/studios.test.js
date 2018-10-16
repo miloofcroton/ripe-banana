@@ -1,4 +1,3 @@
-const { dropCollection } = require('../util/db');
 const request = require('supertest');
 const app = require('../../lib/app');
 const Chance = require('chance');
@@ -9,13 +8,7 @@ describe('end to end studo testing', () => {
 
     const resourceHelper = new ResourceHelper;
 
-    beforeEach(() => {
-        return (async() => {
-            await resourceHelper.init('studios', 3);
-            await dropCollection('studios');
-            await resourceHelper.taskRunner('studio');
-        })();
-    });
+    beforeEach(() => resourceHelper.wrapper('studios', 3));
     
     it('this creates a studio', () => {
         const studio = {
