@@ -79,18 +79,12 @@ describe('end to end studo testing', () => {
             await request(app)
                 .post('/studios')
                 .send(studio)
-                .then(({ body }) => {
-                    console.log(body);
-                    studio.id = body._id;
-                });
+                .then(({ body }) => studio.id = body._id);
             await request(app)
                 .delete(`/studios/${studio.id}`)
                 .then(({ body }) => expect(body).toEqual({ removed: true }));
 
         })();
-
-
-
     });
 
     it('does not delete a studio if there are films', () => {
