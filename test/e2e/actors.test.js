@@ -41,7 +41,12 @@ describe('end to end actor testing', () => {
     it('gets an actor by id', () => {
         return request(app)
             .get(`/actors/${rh.createdActors[0]._id}`)
-            .then(({ body }) => expect(body).toEqual(rh.createdActors[0]));
+            .then(({ body }) => expect(body).toEqual({
+                name: rh.createdActors[0].name,
+                dob: rh.createdActors[0].dob,
+                pob: rh.createdActors[0].pob,
+                films: expect.any(Object)
+            }));
     });
 
     it('this creates an actor', () => {
