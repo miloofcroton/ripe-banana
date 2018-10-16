@@ -3,177 +3,61 @@ const request = require('supertest');
 const app = require('../../lib/app');
 const Chance = require('chance');
 const chance = new Chance();
-
+const { ResourceHelper } = require('../util/helpers');
 
 describe('end to end review testing', () => {
 
-    let createdReviewers;
-    let createdActors;
-    let createdStudios;
-    let createdFilms;
-    let createdReviews;
+    const resourceHelper = new ResourceHelper;
 
-    
-    let reviewers = [
-        {
-            name: chance.name(),
-            company: chance.company()
-        },
-        {
-            name: chance.name(),
-            company: chance.company()
-        }
-    ];
-
-    let reviews = Array.apply(null, { length: 104 }).map(() => {
-        return {
-            rating: chance.natural({ min: 1, max: 5 }),
-            review: chance.string({ length: 50 })
-        };
-    });
-
-    const tumblr = reviewer => {
-        return request(app)
-            .post('/reviewer')
-            .send(reviewer)
-            .then(res => res.body);
-    };
-
+    resourceHelper.init('reviews', 104);
+    resourceHelper.init('reviewers', 2);
+    resourceHelper.init('films', 2);
+    resourceHelper.init('studios', 2);
+    resourceHelper.init('actors', 2);
 
     beforeEach(() => {
-        return dropCollection('reviewers');
+        return Promise.all([
+            dropCollection('reviewers'),
+            dropCollection('films'),
+            dropCollection('actors'),
+            dropCollection('studios'),
+            dropCollection('reviews')
+        ]);
     });
-
     beforeEach(() => {
-        return Promise.all(reviewers.map(tumblr))
-            .then(reviewerRes => createdReviewers = reviewerRes)
-            .then(() => reviews.forEach((review, index) => {
-                review.reviewer = createdReviewers[index % 2]._id;                
+        return resourceHelper.taskRunner('reviewer')
+            .then(() => resourceHelper.reviews.forEach((review, index) => {
+                review.reviewer = resourceHelper.createdReviewers[index % 2]._id;
             }));
     });
-
-    let actors = [
-        {
-            name: chance.name(),
-            dob: chance.birthday(),
-            pob: chance.city()
-        },
-        {
-            name: chance.name(),
-            dob: chance.birthday(),
-            pob: chance.city()
-        },
-    ];
-    let studios = [
-        {
-            name: chance.name(),
-            address: {
-                city: chance.city(),
-                state: chance.state(),
-                country: chance.country({ full: true })
-            }
-        },
-        {
-            name: chance.name(),
-            address: {
-                city: chance.city(),
-                state: chance.state(),
-                country: chance.country({ full: true })
-            }
-        },
-    ];
-    let films = [
-        {
-            title: chance.word(),
-            released: chance.natural({ min: 1900, max: 2050 }),
-            cast: [{
-                role: chance.name(),
-            }]
-        },
-        {
-            title: chance.word(),
-            released: chance.natural({ min: 1900, max: 2050 }),
-            cast: [{
-                role: chance.name(),
-            }]
-        }
-    ];
-
-    const actingSchool = actor => {
-        return request(app)
-            .post('/actors')
-            .send(actor)
-            .then(res => res.body);
-    };
-    const studioMaker = studio => {
-        return request(app)
-            .post('/studios')
-            .send(studio)
-            .then(res => res.body);
-    };
-    const filmProduction = film => {
-        return request(app)
-            .post('/films')
-            .send(film)
-            .then(res => res.body);
-    };
-
     beforeEach(() => {
-        return dropCollection('actors');
-    });
-    beforeEach(() => {
-        return dropCollection('studios');
-    });
-
-    beforeEach(() => {
-        return Promise.all(actors.map(actingSchool))
-            .then(actorRes => createdActors = actorRes)
-            .then(() => createdActors.forEach((actor, index) => {
-                films[index].cast[0].actor = actor;
+        return resourceHelper.taskRunner('actor')
+            .then(() => resourceHelper.createdActors.forEach((actor, index) => {
+                resourceHelper.films[index].cast[0].actor = actor;
             }));
     });
-    
     beforeEach(() => {
-        return Promise.all(studios.map(studioMaker))
-            .then(studioRes => createdStudios = studioRes)
-            .then(() => createdStudios.forEach((studio, index) => {
-                films[index].studio = studio;
+        return resourceHelper.taskRunner('studio')
+            .then(() => resourceHelper.createdStudios.forEach((studio, index) => {
+                resourceHelper.films[index].studio = studio;
             }));
     });
-
     beforeEach(() => {
-        return dropCollection('films');
-    });
-    beforeEach(() => {
-        return Promise.all(films.map(filmProduction))
-            .then(filmRes => createdFilms = filmRes)
-            .then(() => reviews.forEach((review, index) => {
-                review.film = createdFilms[index % 2]._id;                
+        return resourceHelper.taskRunner('film')
+            .then(() => resourceHelper.reviews.forEach((review, index) => {
+                review.film = resourceHelper.createdFilms[index % 2]._id;
             }));
     });
-
-    const reviewWriter = review => {
-        return request(app)
-            .post('/reviews')
-            .send(review)
-            .then(res => res.body);
-    };
-
     beforeEach(() => {
-        return dropCollection('reviews');
-    });
-
-    beforeEach(() => {
-        return Promise.all(reviews.map(reviewWriter))
-            .then(reviewRes => createdReviews = reviewRes);
+        return resourceHelper.taskRunner('review');
     });
 
     it('this creates a review', () => {
         const review = {
             rating: chance.natural({ min: 1, max: 5 }),
             review: chance.string({ length: 50 }),
-            reviewer: createdReviewers[0]._id,
-            film: createdFilms[0]._id
+            reviewer: resourceHelper.createdReviewers[0]._id,
+            film: resourceHelper.createdFilms[0]._id
         };
         return request(app)
             .post('/reviews')
@@ -195,21 +79,21 @@ describe('end to end review testing', () => {
             .get('/reviews')
             .then(({ body }) => {
                 expect(body).toContainEqual({ 
-                    _id: createdReviews[100]._id, 
-                    review: createdReviews[100].review, 
-                    rating: createdReviews[100].rating,
+                    _id: resourceHelper.createdReviews[100]._id, 
+                    review: resourceHelper.createdReviews[100].review, 
+                    rating: resourceHelper.createdReviews[100].rating,
                     film: {
-                        _id: createdReviews[100].film,
-                        title: createdFilms[0].title
+                        _id: resourceHelper.createdReviews[100].film,
+                        title: resourceHelper.createdFilms[0].title
                     }
                 });
                 expect(body).toContainEqual({ 
-                    _id: createdReviews[101]._id, 
-                    review: createdReviews[101].review, 
-                    rating: createdReviews[101].rating,
+                    _id: resourceHelper.createdReviews[101]._id, 
+                    review: resourceHelper.createdReviews[101].review, 
+                    rating: resourceHelper.createdReviews[101].rating,
                     film: {
-                        _id: createdReviews[101].film,
-                        title: createdFilms[1].title
+                        _id: resourceHelper.createdReviews[101].film,
+                        title: resourceHelper.createdFilms[1].title
                     }
                 });
             });

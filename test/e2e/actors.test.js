@@ -10,14 +10,8 @@ describe('end to end actor testing', () => {
     const resourceHelper = new ResourceHelper;
 
     resourceHelper.init('actors', 3);
-
-    beforeEach(() => {
-        return dropCollection('actors');
-    });
-
-    beforeEach(() => {
-        return resourceHelper.taskRunner('actor');
-    });
+    beforeEach(() => dropCollection('actors'));
+    beforeEach(() => resourceHelper.taskRunner('actor'));
 
     it('gets all actors', () => {
         return request(app)

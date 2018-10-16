@@ -38,9 +38,21 @@ class ResourceHelper {
                     country: chance.country({ full: true })
                 },
             },
-            reviews: {},
-            reviewers: {},
-            films: {},
+            reviews: {
+                rating: chance.natural({ min: 1, max: 5 }),
+                review: chance.string({ length: 50 })
+            },
+            reviewers: {
+                name: chance.name(),
+                company: chance.company()
+            },
+            films: {
+                title: chance.word(),
+                released: chance.natural({ min: 1900, max: 2050 }),
+                cast: [{
+                    role: chance.name(),
+                }]
+            },
             actors: {
                 name: chance.name(),
                 dob: chance.birthday(),
