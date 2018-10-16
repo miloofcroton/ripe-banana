@@ -82,49 +82,6 @@ class ResourceHelper {
 
 }
 
-// class reviewersHelper {
-//     constructor(){ 
-//         this.reviewers = [];
-//     }
-
-    
-// }
-
-
-// const reviewersTemplate = 
-// {
-//     name: chance.name(),
-//     company: chance.company()
-// };
-
-// const actorsTemplate =
-// {
-//     name: chance.name(),
-//     dob: chance.birthday(),
-//     pob: chance.city()
-// };
-
-// const filmsTemplate = 
-// {
-//     title: chance.word(),
-//     released: chance.natural({ min: 1900, max: 2050 }),
-//     cast: [{
-//         role: chance.name(),
-//     }]
-// };
-
-// const reviewsTemplate = 
-// {
-//     rating: chance.natural({ min: 1, max: 5 }),
-//     review: chance.string({ length: 50 })
-// };
-
-
-
-
-
-//add helper functions to refactor e2e tests
-
 module.exports = {
     getErrors,
     ResourceHelper
