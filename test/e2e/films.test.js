@@ -9,33 +9,24 @@ describe('end to end film testing', () => {
 
     const resourceHelper = new ResourceHelper;
 
-    resourceHelper.init('actors', 2);
-    resourceHelper.init('studios', 2);
-    resourceHelper.init('films', 2);
-
     beforeEach(() => {
-        return Promise.all([
-            dropCollection('films'),
-            dropCollection('actors'),
-            dropCollection('studios'),
-        ]);
-    });
-
-    beforeEach(() => {
-        return resourceHelper.taskRunner('actor')
-            .then(() => resourceHelper.createdActors.forEach((actor, index) => {
-                resourceHelper.films[index].cast[0].actor = actor;
-            }));
-    });
-    beforeEach(() => {
-        return resourceHelper.taskRunner('studio')
-            .then(() => resourceHelper.createdStudios.forEach((studio, index) => {
-                resourceHelper.films[index].studio = studio;
-            }));
-    });
-
-    beforeEach(() => {
-        return resourceHelper.taskRunner('film');
+        return (async() => {
+            await resourceHelper.init('actors', 2);
+            await resourceHelper.init('studios', 2);
+            await resourceHelper.init('films', 2);
+            await dropCollection('films');
+            await dropCollection('actors');
+            await dropCollection('studios');
+            await resourceHelper.taskRunner('actor')
+                .then(() => resourceHelper.createdActors.forEach((actor, index) => {
+                    resourceHelper.films[index].cast[0].actor = actor;
+                }));
+            await resourceHelper.taskRunner('studio')
+                .then(() => resourceHelper.createdStudios.forEach((studio, index) => {
+                    resourceHelper.films[index].studio = studio;
+                }));
+            await resourceHelper.taskRunner('film');
+        })();
     });
 
     it('this creates a film', () => {

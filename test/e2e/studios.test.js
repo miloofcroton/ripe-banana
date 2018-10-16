@@ -9,10 +9,14 @@ describe('end to end studo testing', () => {
 
     const resourceHelper = new ResourceHelper;
 
-    resourceHelper.init('studios', 3);
-    beforeEach(() => dropCollection('studios'));
-    beforeEach(() => resourceHelper.taskRunner('studio'));
-
+    beforeEach(() => {
+        return (async() => {
+            await resourceHelper.init('studios', 3);
+            await dropCollection('studios');
+            await resourceHelper.taskRunner('studio');
+        })();
+    });
+    
     it('this creates a studio', () => {
         const studio = {
             name: chance.name(),

@@ -9,9 +9,13 @@ describe('end to end reviewer testing', () => {
 
     const resourceHelper = new ResourceHelper;
 
-    resourceHelper.init('reviewers', 3);
-    beforeEach(() => dropCollection('reviewers'));
-    beforeEach(() => resourceHelper.taskRunner('reviewer'));
+    beforeEach(() => {
+        return (async() => {
+            resourceHelper.init('reviewers', 3);
+            await dropCollection('reviewers');
+            await resourceHelper.taskRunner('reviewer');
+        })();
+    });
     
     it('this creates a reviewer', () => {
         const reviewer = {
