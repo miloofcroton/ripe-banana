@@ -41,17 +41,21 @@ class ResourceHelper {
             reviews: {},
             reviewers: {},
             films: {},
-            actors: {}
+            actors: {
+                name: chance.name(),
+                dob: chance.birthday(),
+                pob: chance.city()
+            }
         };
         return templates[resource];
     } 
     task(resource, data) {
         const routes = {
             studio: '/studios',
-            actors: '/actors',
+            actor: '/actors',
             reviewer: '/reviewer',
-            reviews: '/reviews',
-            films: '/films'
+            review: '/reviews',
+            film: '/films'
         };
         const route = routes[resource];
         return request(app)

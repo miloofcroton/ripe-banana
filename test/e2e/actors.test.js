@@ -3,59 +3,36 @@ const request = require('supertest');
 const app = require('../../lib/app');
 const Chance = require('chance');
 const chance = new Chance();
+const { ResourceHelper } = require('../util/helpers');
 
 describe('end to end actor testing', () => {
 
-    let actors = [
-        {
-            name: chance.name(),
-            dob: chance.birthday(),
-            pob: chance.city()
-        },
-        {
-            name: chance.name(),
-            dob: chance.birthday(),
-            pob: chance.city()
-        },
-        {
-            name: chance.name(),
-            dob: chance.birthday(),
-            pob: chance.city()
-        },
-    ];
+    const resourceHelper = new ResourceHelper;
 
-    let createdActors;
-
-    const actingSchool = actor => {
-        return request(app)
-            .post('/actors')
-            .send(actor)
-            .then(res => res.body);
-    };
+    resourceHelper.init('actors', 3);
 
     beforeEach(() => {
         return dropCollection('actors');
     });
 
     beforeEach(() => {
-        return Promise.all(actors.map(actingSchool))
-            .then(actorRes => createdActors = actorRes);
+        return resourceHelper.taskRunner('actor');
     });
 
     it('gets all actors', () => {
         return request(app)
             .get('/actors')
-            .then(retrievedActors => {
-                createdActors.forEach(createdActor => {
-                    expect(retrievedActors.body).toContainEqual({ _id: createdActor._id, name: createdActor.name });
+            .then(({ body }) => {
+                resourceHelper.createdActors.forEach(createdActor => {
+                    expect(body).toContainEqual({ _id: createdActor._id, name: createdActor.name });
                 });
             });
     });
 
     it('gets an actor by id', () => {
         return request(app)
-            .get(`/actors/${createdActors[0]._id}`)
-            .then(({ body }) => expect(body).toEqual(createdActors[0]));
+            .get(`/actors/${resourceHelper.createdActors[0]._id}`)
+            .then(({ body }) => expect(body).toEqual(resourceHelper.createdActors[0]));
     });
 
     it('this creates an actor', () => {
@@ -86,14 +63,14 @@ describe('end to end actor testing', () => {
         };
 
         return request(app)
-            .put(`/actors/${createdActors[0]._id}`)
+            .put(`/actors/${resourceHelper.createdActors[0]._id}`)
             .send(newActor)
             .then(({ body }) => expect(body).toEqual({ _id: expect.any(String), name: newActor.name }));
     });
 
     it('deletes an actor', () => {
         return request(app)
-            .delete(`/actors/${createdActors[0]._id}`)
+            .delete(`/actors/${resourceHelper.createdActors[0]._id}`)
             .then(({ body }) => expect(body).toEqual({ removed: true }));
     });
 

@@ -41,6 +41,7 @@ describe('end to end studo testing', () => {
     });
 
     it('gets all studios', () => {
+        console.log('test');
         return request(app)
             .get('/studios')
             .then(({ body }) => {
