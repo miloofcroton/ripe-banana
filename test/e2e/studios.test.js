@@ -9,8 +9,23 @@ describe('end to end studo testing', () => {
 
     const rh = new ResourceHelper;
 
-    beforeEach(() => rh.wrapper('studios', 3));
-    
+    // beforeEach(() => rh.wrapper('studios', 3));
+
+    beforeEach(() => {
+        return (async() => {
+            await dropCollection('films');
+            await rh.init('films', 104);
+
+            await rh.wrapper('actors', 2);
+            await rh.assign('films', 'createdActors', 'cast[0].actor');
+
+            await rh.wrapper('studios', 2);
+            await rh.assign('films', 'createdStudios', 'studio');
+            
+            await rh.taskRunner('films');
+        })();
+    });
+
     it('this creates a studio', () => {
         const studio = {
             name: chance.name(),
@@ -49,28 +64,38 @@ describe('end to end studo testing', () => {
     });
 
     it('deletes a studio by id', () => {
-        return request(app)
-            .delete(`/studios/${rh.createdStudios[0]._id}`)
-            .then(({ body }) => expect(body).toEqual({ removed: true }));
+        
+        let studio = {
+            name: chance.name(),
+            address: {
+                city: chance.city(),
+                state: chance.state(),
+                country: chance.country({ full: true })
+            }
+        };
+
+        return (async() => {
+
+            await request(app)
+                .post('/studios')
+                .send(studio)
+                .then(({ body }) => {
+                    console.log(body);
+                    studio.id = body._id;
+                });
+            await request(app)
+                .delete(`/studios/${studio.id}`)
+                .then(({ body }) => expect(body).toEqual({ removed: true }));
+
+        })();
+
+
+
     });
 
     it('does not delete a studio if there are films', () => {
-        (async() => {
-            await dropCollection('films');
-            await rh.init('films', 104);
-
-            await rh.wrapper('actors', 2);
-            await rh.assign('films', 'createdActors', 'cast[0].actor');
-
-            await rh.wrapper('studios', 2);
-            await rh.assign('films', 'createdStudios', 'studio');
-            
-            await rh.taskRunner('films');
-        })();
         return request(app)
             .delete(`/studios/${rh.createdStudios[0]._id}`)
             .then(({ body }) => expect(body).toEqual({ removed: false }));
-        
-    
     });
 });
