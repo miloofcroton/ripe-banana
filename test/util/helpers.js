@@ -19,6 +19,7 @@ class ResourceHelper {
         this.reviews, this.createdReviews,
         this.reviewers, this.createdReviewers = [];
     }
+
     init(resource, length) {
         this[resource] = Array.apply(null, { length: length }).map(() => this.template(`${resource}`));
     }
@@ -56,7 +57,8 @@ class ResourceHelper {
             }
         };
         return templates[resource];
-    } 
+    }
+     
     task(resource, data) {
         const routes = {
             studios: '/studios',
@@ -76,7 +78,7 @@ class ResourceHelper {
             .then(response => this['created' + resource.replace(/^\w/, c => c.toUpperCase())] = response);
     }
 
-    async wrapper(resource, number, callback) {
+    async wrapper(resource, number) {
         await this.init(resource, number);
         await dropCollection(resource);
         await this.taskRunner(resource);
