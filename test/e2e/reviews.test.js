@@ -43,10 +43,7 @@ describe('end to end review testing', () => {
             .then(({ body }) => {
                 expect(body).toEqual({
                     ...review,
-                    createdAt: expect.any(String),
-                    updatedAt: expect.any(String),
-                    _id: expect.any(String),
-                    __v: expect.any(Number)
+                    _id: expect.any(String)
                 });
             });
     });

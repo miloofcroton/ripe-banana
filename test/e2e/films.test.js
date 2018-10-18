@@ -11,16 +11,22 @@ describe('end to end film testing', () => {
 
     beforeEach(() => {
         return (async() => {
-            await dropCollection('films');
-            await rh.init('films', 104);
+            await Promise.all([dropCollection('films'), dropCollection('reviews')]);
+            await Promise.all([rh.init('reviews', 104), rh.init('films', 104)]);
+
+            await rh.wrapper('reviewers', 2);
+            await rh.assign('reviews', 'createdReviewers', 'reviewer');
 
             await rh.wrapper('actors', 2);
             await rh.assign('films', 'createdActors', 'cast[0].actor');
 
             await rh.wrapper('studios', 2);
             await rh.assign('films', 'createdStudios', 'studio');
-            
+
             await rh.taskRunner('films');
+            await rh.assign('reviews', 'createdFilms', 'film');
+
+            await rh.taskRunner('reviews');
         })();
     });
 
@@ -70,10 +76,12 @@ describe('end to end film testing', () => {
             .get(`/films/${rh.createdFilms[0]._id}`)
             .then(({ body }) => {
                 expect(body).toEqual({
-                    _id: rh.createdFilms[0]._id,
                     title: rh.createdFilms[0].title,
                     released: rh.createdFilms[0].released,
-                    studio: { _id: rh.createdFilms[0].studio, name: rh.createdStudios[0].name },
+                    studio: { 
+                        _id: rh.createdFilms[0].studio, 
+                        name: rh.createdStudios[0].name 
+                    },
                     cast: [{
                         _id: rh.createdFilms[0].cast[0]._id,
                         role: rh.createdFilms[0].cast[0].role,
@@ -82,6 +90,16 @@ describe('end to end film testing', () => {
                             name: rh.createdActors[0].name
                         }
                     }],
+                    reviews: expect.any(Array)
+                });
+                expect(body.reviews).toContainEqual({ 
+                    _id: rh.createdReviews[0]._id,
+                    rating: rh.createdReviews[0].rating,
+                    review: rh.createdReviews[0].review,
+                    reviewer: { 
+                        _id: rh.createdReviews[0].reviewer,
+                        name: rh.createdReviewers[0].name
+                    }
                 });
             });
     });
