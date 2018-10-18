@@ -1,5 +1,5 @@
-const { getErrors } = require('../util/helpers');
-const Actor = require('../../lib/models/Actor');
+const { getErrors } = require('../../util/helpers');
+const Actor = require('../../../lib/models/Actor');
 const Chance = require('chance');
 const chance = new Chance();
 

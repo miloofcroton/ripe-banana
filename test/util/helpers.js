@@ -17,7 +17,8 @@ class ResourceHelper {
         this.actors, this.createdActors,
         this.films, this.createdFilms,
         this.reviews, this.createdReviews,
-        this.reviewers, this.createdReviewers = [];
+        this.reviewers, this.createdReviewers,
+        this.users, this.createdUsers = [];
     }
 
     init(resource, length) {
@@ -54,6 +55,11 @@ class ResourceHelper {
                 name: chance.name(),
                 dob: chance.birthday(),
                 pob: chance.city()
+            },
+            users: {
+                name: chance.name(),
+                email: chance.email(),
+                clearPassword: chance.string({ length: 10 })
             }
         };
         return templates[resource];
@@ -65,7 +71,8 @@ class ResourceHelper {
             actors: '/actors',
             reviewers: '/reviewer',
             reviews: '/reviews',
-            films: '/films'
+            films: '/films',
+            users: '/users'
         };
         const route = routes[resource];
         return request(app)
@@ -79,8 +86,8 @@ class ResourceHelper {
     }
 
     async wrapper(resource, number) {
-        await this.init(resource, number);
         await dropCollection(resource);
+        await this.init(resource, number);
         await this.taskRunner(resource);
     }
 

@@ -108,5 +108,15 @@ describe('end to end actor testing', () => {
             .then(({ body }) => expect(body).toEqual({ removed: false }));
     });
 
+    it('gets an actor by id with an aggregation', () => {
+        return request(app)
+            .get(`/actors/${rh.createdActors[0]._id}/agg`)
+            .then(({ body }) => expect(body).toEqual({
+                name: rh.createdActors[0].name,
+                dob: rh.createdActors[0].dob,
+                pob: rh.createdActors[0].pob,
+            }));
+    });
+
 
 });

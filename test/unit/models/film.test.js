@@ -1,7 +1,7 @@
-const { getErrors } = require('../util/helpers');
-const Film = require('../../lib/models/Film');
-const Studio = require('../../lib/models/Studio');
-const Actor = require('../../lib/models/Actor');
+const { getErrors } = require('../../util/helpers');
+const Film = require('../../../lib/models/Film');
+const Studio = require('../../../lib/models/Studio');
+const Actor = require('../../../lib/models/Actor');
 const Chance = require('chance');
 const chance = new Chance();
 

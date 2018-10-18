@@ -1,9 +1,9 @@
-const { getErrors } = require('../util/helpers');
-const Review = require('../../lib/models/Review');
-const Reviewer = require('../../lib/models/Reviewer');
-const Film = require('../../lib/models/Film');
-const Actor = require('../../lib/models/Actor');
-const Studio = require('../../lib/models/Studio');
+const { getErrors } = require('../../util/helpers');
+const Review = require('../../../lib/models/Review');
+const Reviewer = require('../../../lib/models/Reviewer');
+const Film = require('../../../lib/models/Film');
+const Actor = require('../../../lib/models/Actor');
+const Studio = require('../../../lib/models/Studio');
 const Chance = require('chance');
 const chance = new Chance();
 
