@@ -44,7 +44,7 @@ describe('end to end reviewer testing', () => {
         const reviewer = {
             name: chance.name(),
             company: chance.company(),
-            password: 'alchemy123'
+            password: 'animals123'
         };
         return request(app)
             .post('/reviewer')
@@ -94,6 +94,52 @@ describe('end to end reviewer testing', () => {
             });
     });
 
+    it('signs in a reviwer', () => {
+        return request(app)
+            .post('/api/reviewers/signin')
+            .send({ email: 'douglefir@gmail.com', password: 'animals123' })
+            .then(res => {
+                checkOk(res);
+                expect(res.body.token).toEqual(expect.any(String));
+            });
+    });
+
+    it('rejects a sign in with a bad password', () => {
+        return request(app)
+            .post('/api/reviewers/signin')
+            .send({ email: 'douglefir@gmail.com', password: 'badpassword' })
+            .then(checkStatus(401));
+    });
+
+    it('rejects a sign in with a token but bad password', () => {
+        let token;
+        return request(app)
+            .post('/api/reviewers/signin')
+            .send({ email: 'wtree@gmail.com', password: 'wtree123' })
+            .then(res => {
+                token = res;
+            })
+            .then(request(app)
+                .post('/api/reviewers/signin')
+                .set('Authorization', `Bearer ${token}`)
+                .send({ email: 'dfir@gmail.com', password: 'dfir12345' })
+                .then(checkStatus(401)));
+    });
+
+    it('verifies a signed in user', () => {
+        return request(app)
+            .post('/api/reviewers/signin')
+            .send({ email: 'dfir@gmail.com', password: 'dfir123' })
+            .then(res => {
+                return request(app)
+                    .get('/api/reviewers/verify')
+                    .set('Authorization', `Bearer ${res.body.token}`)
+                    .then(res => {
+                        expect(res.body).toEqual({ success: true });
+                    });
+            });
+    });
+
     it('gets a reviewer by id', () => {
         return request(app)
             .get(`/reviewer/${rh.createdReviewers[0]._id}`)
@@ -109,12 +155,13 @@ describe('end to end reviewer testing', () => {
 
         const newReviewer = {
             name: chance.name(),
-            company: chance.company()
+            company: chance.company(),
+            password: 'animals123'
         };
 
         return request(app)
             .put(`/reviewer/${rh.createdReviewers[0]._id}`)
             .send(newReviewer)
-            .then(({ body }) => expect(body).toEqual({ _id: expect.any(String), name: newReviewer.name, company: newReviewer.company }));
+            .then(({ body }) => expect(body).toEqual({ _id: expect.any(String), name: newReviewer.name, company: newReviewer.company, password: newReviewer.password }));
     }); 
 });
