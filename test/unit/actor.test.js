@@ -2,7 +2,7 @@ const { getErrors } = require('../util/helpers');
 const Actor = require('../../lib/models/Actor');
 const Chance = require('chance');
 const chance = new Chance();
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 
 describe('Actor model', () => {
 

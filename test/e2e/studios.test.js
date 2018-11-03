@@ -4,7 +4,7 @@ const Chance = require('chance');
 const chance = new Chance();
 const { ResourceHelper } = require('../util/helpers');
 const { dropCollection } = require('../util/db');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 
 describe('end to end studo testing', () => {
 

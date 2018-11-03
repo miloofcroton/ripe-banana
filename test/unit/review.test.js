@@ -6,8 +6,7 @@ const Actor = require('../../lib/models/Actor');
 const Studio = require('../../lib/models/Studio');
 const Chance = require('chance');
 const chance = new Chance();
-const Reviewer = require('../../lib/models/Reviewer');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 
 describe('Review model', () => {
 
