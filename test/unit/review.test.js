@@ -61,51 +61,18 @@ describe('Review model', () => {
         });
     });
 
-    it('requires a rating', () => {
-        const data = {
-            reviewer: reviewer._id,
-            review: chance.string({ length: 50 }),
-            film: film._id
-        };
-
+    it('requires a rating, reviewer, review, and film', () => {
+        const data = {};
+ 
         const review = new Review(data);
-        const errors = getErrors(review.validateSync(), 1);
+        const errors = getErrors(review.validateSync(), 4);
         expect(errors.rating.properties.message).toEqual('Path `rating` is required.');
-    });
-    it('requires a reviewer', () => {
-        const data = {
-            rating: chance.natural({ min: 1, max: 5 }),
-            review: chance.string({ length: 50 }),
-            film: film._id
-        };
-
-        const review = new Review(data);
-        const errors = getErrors(review.validateSync(), 1);
         expect(errors.reviewer.properties.message).toEqual('Path `reviewer` is required.');
-    });
-    it('requires a review', () => {
-        const data = {
-            rating: chance.natural({ min: 1, max: 5 }),
-            reviewer: reviewer._id,
-            film: film._id
-        };
-
-        const review = new Review(data);
-        const errors = getErrors(review.validateSync(), 1);
         expect(errors.review.properties.message).toEqual('Path `review` is required.');
-    });
-    it('requires a film', () => {
-        const data = {
-            rating: chance.natural({ min: 1, max: 5 }),
-            reviewer: reviewer._id,
-            review: chance.string({ length: 50 }),
-        };
-
-        const review = new Review(data);
-        const errors = getErrors(review.validateSync(), 1);
         expect(errors.film.properties.message).toEqual('Path `film` is required.');
-    });
 
+
+    });
     it('requires a rating between 1 and 5', () => {
         const data = {
             rating: chance.natural({ min: 6 }),
@@ -119,37 +86,22 @@ describe('Review model', () => {
         expect(errors.rating.properties.message).toEqual(`Path \`rating\` (${data.rating}) is more than maximum allowed value (5).`);
     });
 
-    it('requires a real reviewer', () => {
+    it('requires reviewer and film already in database', () => {
 
         const fakeReviewer = 'I am not even a schema instance';
+        const fakeFilm = 'I am not even a schema instance';
+
 
         const data = {
             rating: chance.natural({ min: 1, max: 5 }),
             reviewer: fakeReviewer._id,
             review: chance.string({ length: 50 }),
-            film: film._id
-        };
+            film: fakeFilm._id        };
 
         const review = new Review(data);
-        const errors = getErrors(review.validateSync(), 1);
+        const errors = getErrors(review.validateSync(), 2);
         expect(errors.reviewer.properties.message).toEqual('Path `reviewer` is required.');
-    });
-
-    it('requires a real reviewer', () => {
-
-        const fakeFilm = 'I am not even a schema instance';
-
-        const data = {
-            rating: chance.natural({ min: 1, max: 5 }),
-            reviewer: reviewer._id,
-            review: chance.string({ length: 50 }),
-            film: fakeFilm._id
-        };
-
-        const review = new Review(data);
-        const errors = getErrors(review.validateSync(), 1);
         expect(errors.film.properties.message).toEqual('Path `film` is required.');
+
     });
-
-
 });

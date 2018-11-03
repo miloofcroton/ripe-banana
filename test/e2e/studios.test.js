@@ -42,7 +42,6 @@ describe('end to end studo testing', () => {
                 expect(body).toEqual({
                     ...studio,  
                     _id: expect.any(String),
-                    __v: expect.any(Number),
                 });
             });
     });
@@ -60,7 +59,7 @@ describe('end to end studo testing', () => {
     it('gets a studio by id', () => {
         return request(app)
             .get(`/studios/${rh.createdStudios[0]._id}`)
-            .then(({ body }) => expect(body).toEqual({ ...rh.createdStudios[0] }));
+            .then(({ body }) => expect(body).toEqual({ ...rh.createdStudios[0], films: expect.any(Object) }));
     });
 
     it('deletes a studio by id', () => {
