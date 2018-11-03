@@ -41,7 +41,11 @@ class ResourceHelper {
             },
             reviewers: {
                 name: chance.name(),
-                company: chance.company()
+                company: chance.company(),
+                email: chance.email(),
+                role: 'admin',
+                password: chance.string()
+
             },
             films: {
                 title: chance.word(),
