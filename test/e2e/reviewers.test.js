@@ -53,7 +53,8 @@ describe('end to end reviewer testing', () => {
                 expect(body).toEqual({
                     ...reviewer,
                     _id: expect.any(String),
-                    __v: expect.any(Number)
+                    __v: expect.any(Number),
+                    passwordHash: expect.any(String)
                 });
             });
     });
@@ -65,6 +66,31 @@ describe('end to end reviewer testing', () => {
                 rh.createdReviewers.forEach(createdReviewer => {
                     expect(retrievedReviewers.body).toContainEqual({ _id: createdReviewer._id, name: createdReviewer.name, company: createdReviewer.company });
                 });
+            });
+    });
+
+    it('hashes a reviewers password', () => {
+        return Reviewer.create({
+            name: 'Douglas Fir',
+            company: 'Alta',
+            password: 'animals123'
+        }).then(user => {
+            expect(user.password).not.toEqual('animals123');
+            expect(bcrypt.compareSync('animals123', user.passwordHash));
+        });
+    });
+
+    it('compares passwords', () => {
+        const reviewer = {
+            name: 'Douglas Fir',
+            company: 'Alta',
+            password: 'animals123'
+        };
+        
+        Reviewer.create(reviewer)
+            .then(createdReviewer => {
+                expect(createdReviewer.compare(reviewer.password)).toBeTruthy();
+                expect(createdReviewer.compare('543lkj')).toBeFalsy();
             });
     });
 
