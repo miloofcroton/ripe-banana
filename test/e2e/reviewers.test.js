@@ -4,7 +4,14 @@ const Chance = require('chance');
 const chance = new Chance();
 const { ResourceHelper } = require('../util/helpers');
 const { dropCollection } = require('../util/db');
+const Reviewer = require('../../lib/models/Reviewer');
+const bcrypt = require('bcrypt');
 
+const checkStatus = statusCode => res => {
+    expect(res.status).toEqual(statusCode);
+};
+
+const checkOk = res => checkStatus(200)(res);
 
 describe('end to end reviewer testing', () => {
 
@@ -36,7 +43,8 @@ describe('end to end reviewer testing', () => {
     it('this creates a reviewer', () => {
         const reviewer = {
             name: chance.name(),
-            company: chance.company()
+            company: chance.company(),
+            password: 'alchemy123'
         };
         return request(app)
             .post('/reviewer')
