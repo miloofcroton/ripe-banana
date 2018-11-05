@@ -23,7 +23,7 @@ describe('Reviewer model', () => {
             company: chance.company()
         });
 
-        const errors = getErrors(reviewer.validateSync(), 1);
+        const errors = getErrors(reviewer.validateSync(), 3);
         expect(errors.name.properties.message).toEqual('Path `name` is required.');
     });
 

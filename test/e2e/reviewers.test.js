@@ -44,7 +44,9 @@ describe('end to end reviewer testing', () => {
         const reviewer = {
             name: chance.name(),
             company: chance.company(),
-            password: 'animals123'
+            email: chance.email(),
+            role: 'admin',
+            password: chance.string()
         };
         return request(app)
             .post('/reviewer')
@@ -53,8 +55,7 @@ describe('end to end reviewer testing', () => {
                 expect(body).toEqual({
                     ...reviewer,
                     _id: expect.any(String),
-                    __v: expect.any(Number),
-                    passwordHash: expect.any(String)
+                    __v: expect.any(Number)
                 });
             });
     });
@@ -64,15 +65,15 @@ describe('end to end reviewer testing', () => {
             .get('/reviewer')
             .then(retrievedReviewers => {
                 rh.createdReviewers.forEach(createdReviewer => {
-                    expect(retrievedReviewers.body).toContainEqual({ _id: createdReviewer._id, name: createdReviewer.name, company: createdReviewer.company });
+                    expect(retrievedReviewers.body).toContainEqual({ _id: createdReviewer._id, name: createdReviewer.name, company: createdReviewer.company, email: createdReviewer.email, role: createdReviewer.role, password: createdReviewer.password });
                 });
             });
     });
 
     it('hashes a reviewers password', () => {
         return Reviewer.create({
-            name: 'Douglas Fir',
-            company: 'Alta',
+            name: chance.name(),
+            company: chance.company(),
             password: 'animals123'
         }).then(user => {
             expect(user.password).not.toEqual('animals123');
