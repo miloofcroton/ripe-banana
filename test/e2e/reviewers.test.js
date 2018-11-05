@@ -5,7 +5,7 @@ const chance = new Chance();
 const { ResourceHelper } = require('../util/helpers');
 const { dropCollection } = require('../util/db');
 const Reviewer = require('../../lib/models/Reviewer');
-const bcrypt = require('bcrypt');
+const { getReviewers, getReviewerTokens, getFilms, getReviews } = require('./create');
 
 const checkStatus = statusCode => res => {
     expect(res.status).toEqual(statusCode);
@@ -130,7 +130,7 @@ describe('end to end reviewer testing', () => {
     it('verifies a signed in user', () => {
         return request(app)
             .post('/api/reviewers/signin')
-            .send({ email: 'dfir@gmail.com', password: 'dfir123' })
+            .send({ email: 'dfir@gmail.com', clearPassword: 'dfir123' })
             .then(res => {
                 return request(app)
                     .get('/api/reviewers/verify')
@@ -152,7 +152,8 @@ describe('end to end reviewer testing', () => {
             }));
     });
 
-    it('updates a reviewer', () => {
+    it('updates a reviewer if user is an admin', () => {
+        const reviewerTokens = getReviewerTokens();
 
         const newReviewer = {
             name: chance.name(),
@@ -162,6 +163,7 @@ describe('end to end reviewer testing', () => {
 
         return request(app)
             .put(`/reviewer/${rh.createdReviewers[0]._id}`)
+            .set('Authorization', `Bearer ${reviewerTokens[0]}`)
             .send(newReviewer)
             .then(({ body }) => expect(body).toEqual({ _id: expect.any(String), name: newReviewer.name, company: newReviewer.company, password: newReviewer.password }));
     }); 

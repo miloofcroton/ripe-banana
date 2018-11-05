@@ -4,6 +4,7 @@ const Chance = require('chance');
 const chance = new Chance();
 const { ResourceHelper } = require('../util/helpers');
 const { dropCollection } = require('../util/db');
+const { getReviewerTokens, getActors,  getFilms } = require('./create');
 
 
 describe('end to end actor testing', () => {
@@ -29,6 +30,7 @@ describe('end to end actor testing', () => {
 
 
     it('gets all actors', () => {
+
         return request(app)
             .get('/actors')
             .then(({ body }) => {
@@ -49,7 +51,10 @@ describe('end to end actor testing', () => {
             }));
     });
 
-    it('this creates an actor', () => {
+    it('this creates an actor if user is an admin', () => {
+        
+        const reviewerTokens = getReviewerTokens();
+
         const actor = {
             name: chance.name(),
             dob: chance.birthday(),
@@ -57,6 +62,7 @@ describe('end to end actor testing', () => {
         };
         return request(app)
             .post('/actors')
+            .set('Authorization', `Bearer ${reviewerTokens[0]}`)
             .send(actor)
             .then(({ body }) => {
                 expect(body).toEqual({
@@ -65,6 +71,24 @@ describe('end to end actor testing', () => {
                     _id: expect.any(String),
                     __v: expect.any(Number)
                 });
+            });
+    });
+
+    it('this will not create an actor if user is not an admin', () => {
+        
+        const reviewerTokens = getReviewerTokens();
+
+        const actor = {
+            name: chance.name(),
+            dob: chance.birthday(),
+            pob: chance.city()
+        };
+        return request(app)
+            .post('/actors')
+            .set('Authorization', `Bearer ${reviewerTokens[0]}`)
+            .send(actor)
+            .then(result => {
+                expect(result.body).toEqual({});
             });
     });
 
@@ -84,6 +108,8 @@ describe('end to end actor testing', () => {
 
     it('deletes an actor', () => {
 
+        const reviewerTokens = getReviewerTokens();
+
         let actor = {
             name: chance.name(),
             dob: chance.birthday(),
@@ -98,13 +124,18 @@ describe('end to end actor testing', () => {
                 .then(({ body }) => actor.id = body._id);
             await request(app)
                 .delete(`/actors/${actor.id}`)
+                .set('Authorization', `Bearer ${reviewerTokens[0]}`)
                 .then(({ body }) => expect(body).toEqual({ removed: true }));
         })();
     });
 
     it('does not delete an actor if they are in films', () => {
+        
+        const reviewerTokens = getReviewerTokens();
+        
         return request(app)
             .delete(`/actors/${rh.createdActors[0]._id}`)
+            .set('Authorization', `Bearer ${reviewerTokens[0]}`)
             .then(({ body }) => expect(body).toEqual({ removed: false }));
     });
 

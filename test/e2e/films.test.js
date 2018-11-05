@@ -4,6 +4,7 @@ const app = require('../../lib/app');
 const Chance = require('chance');
 const chance = new Chance();
 const { ResourceHelper } = require('../util/helpers');
+const { getReviewers, getReviewerTokens, getActors, getStudios, getFilms, getReviews } = require('./create');
 
 describe('end to end film testing', () => {
 
@@ -32,6 +33,10 @@ describe('end to end film testing', () => {
 
     it('this creates a film', () => {
 
+        const reviewerTokens = getReviewerTokens();
+        const studios = getStudios();
+        const actors = getActors();
+
         const film = {
             title: chance.word(),
             studio: rh.createdStudios[0]._id,
@@ -44,6 +49,7 @@ describe('end to end film testing', () => {
 
         return request(app)
             .post('/films')
+            .set('Authorization', `Bearer ${reviewerTokens[0]}`)
             .send(film)
             .then(({ body }) => {
                 expect(body).toEqual({
@@ -104,9 +110,15 @@ describe('end to end film testing', () => {
             });
     });
 
-    it('deletes a film by id', () => {
+    it('deletes a film by id if you are an admin', () => {
+        const reviewerTokens = getReviewerTokens();
+        const films = getFilms();
+        const id = films[0]._id;
+
         return request(app)
-            .delete(`/films/${rh.createdFilms[0]._id}`)
+            // .delete(`/films/${rh.createdFilms[0]._id}`)
+            .delete(`/films/${id}`)
+            .set('Authorization', `Bearer ${reviewerTokens[0]}`)
             .then(({ body }) => expect(body).toEqual({ removed: true }));
     });
 
